@@ -1,6 +1,20 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { resolve } from 'path';
+import fs from 'fs';
+
+// Plugin pour copier le service worker
+const copyServiceWorker = () => {
+  return {
+    name: 'copy-service-worker',
+    writeBundle() {
+      const srcPath = resolve(__dirname, 'public/service-worker.js');
+      const destPath = resolve(__dirname, 'dist/service-worker.js');
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
 
 export default defineConfig({
   plugins: [
@@ -34,6 +48,14 @@ export default defineConfig({
           }
         ]
       }
-    })
-  ]
+    }),
+    copyServiceWorker()
+  ],
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+      },
+    },
+  },
 });
